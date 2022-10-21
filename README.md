@@ -1,13 +1,23 @@
 # Summary
-A little tool for converting [SQLAlchemy](https://www.sqlalchemy.org/) models to [AtlasGo](https://atlasgo.io/) HCL. Mostly an exercise in Programic docker control and hacky go/c importing. :shrug:
+Converts [SQLAlchemy](https://www.sqlalchemy.org/) models to [AtlasGo](https://atlasgo.io/) HCL.
+# installation
+    - pip install sqlalchemy2atlas
+# Quickstart
+    - Clone the repo
+    <!-- Insall deps? Docker? -->
+    - Run `make`
+    <!-- Usage -->
+    - Run `sqlalchemy2atlasgo -m ./schemas` to generate HCL
 
 # Driver Support
-- [] PostgreSQL
+- [x] PostgreSQL
+    - [x] 14.x
+- [ ] Spanner
 
 # Todo
-- [] Spin up & connect to an empty postgres container with python
-- [] Given a SQLAlchemy model, generate a table in the postgres container
-- [] Run Atlas Inspector on the postgres container to generate an HCL file
-- [] Wrap the whole thing in a CLI
-
-# Notes
+- [x] Spin up & Manage an empty postgres container with python
+- [x] Connect to the temporary container with SQLAlchemy
+- [x] Given a SQLAlchemy model, generate a table in the postgres container
+- [ ] Run Atlas Inspector on the postgres container to generate an HCL file
+- [ ] Wrap the whole thing in a CLI
+- [ ] Schema semantics

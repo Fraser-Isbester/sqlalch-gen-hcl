@@ -1,3 +1,6 @@
-
-# Pip
+# Local Development
+.vscode/
 Pipfile.lock
+
+# Logging
+logs/

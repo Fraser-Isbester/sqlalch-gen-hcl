@@ -1,11 +1,11 @@
 import logging
-import sys
+import sys, os
 import importlib
 from pathlib import Path
 from argparse import ArgumentParser
 from os import popen
 
-from .containers import PostgreContainer
+from .containers import PostgreContainer, Flavors
 from .exceptions import UnknownFlavorException
 
 # DB Connectivity
@@ -26,32 +26,43 @@ formatter = logging.Formatter(log_format)
 
 
 def main(argv=None):
-
-    parser = ArgumentParser(description="Process a schema module.")
+    parser = ArgumentParser(
+        description="Convert a SQLAlchemy declarative base into an Atlas HCL file."
+    )
     parser.add_argument(
         "filepath",
-        help="The relative path to the sqlalchemy schema fil. Must contain `Base = declarative_base()` .",
+        help="The relative path to the python module containing a SQLAlchemy declarative base.",
     )
     parser.add_argument(
         "--flavor",
         type=str,
-        default="postgres",
-        choices=["postgres"],
+        default=Flavors.POSTGRES.value,
+        choices=[Flavors.POSTGRES.value],
         help="The flavor of the database HCL you want to generate.",
+    )
+    parser.add_argument(
+        "--base",
+        type=str,
+        default="Base",
+        help="The name of the declarative base object in the schema file.",
     )
 
     args = parser.parse_args(argv)
     path = args.filepath.replace("/", ".").replace(".py", "")
-    base = importlib.import_module(path).Base
+
+    sys.path.append(os.getcwd())
+    mod = importlib.import_module(path)
+    base = getattr(mod, args.base)
 
     try:
-        if args.flavor == "postgres":
+        if args.flavor == Flavors.POSTGRES.value:
             db = PostgreContainer()
         else:
             raise UnknownFlavorException(f"Flavor {args.flavor} not supported.")
 
         engine = create_engine(db.connection_string, poolclass=NullPool)
         base.metadata.create_all(engine)
+
         stream = popen(f'atlas schema inspect --url "{db.connection_string}"')
         output = stream.read()
         logging.info(output)
@@ -60,6 +71,7 @@ def main(argv=None):
         logging.debug("Completed generating HCL. Cleaning up.")
         try:
             db.container.kill()
+            db.container.remove()
         except UnboundLocalError as err:
             logging.warning("db container failed to initialize, nothing to kill.")
         logging.debug("Done cleaning up.")

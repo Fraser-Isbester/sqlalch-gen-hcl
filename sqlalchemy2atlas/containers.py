@@ -1,8 +1,13 @@
+from enum import Enum
 import logging
 import datetime
 import time
 import secrets
 import docker
+
+
+class Flavors(Enum):
+    POSTGRES = "postgres"
 
 
 class PostgreContainer:

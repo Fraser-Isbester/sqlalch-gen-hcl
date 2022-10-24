@@ -6,12 +6,13 @@ name = "pypi"
 [packages]
 docker = ">=6.0"
 psycopg2 = ">=2.9"
-sqlalchemy = ">=1.4"
+SQLAlchemy = ">=1.4"
 
 [dev-packages]
 black = "*"
 pytest = "*"
 pynguin = "*"
+twine = "*"
 
 [requires]
 python_version = "3.10"

@@ -1,19 +1,16 @@
 # Summary
 Converts [SQLAlchemy](https://www.sqlalchemy.org/) models to [AtlasGo](https://atlasgo.io/) HCL.
-# installation
-    - pip install sqlalchemy2atlas
+
 # Quickstart
+<!-- Installation -->
+- Run `pip install sqlalchemy2atlas`
+<!-- Usage -->
+- Run `sqlalchemy2atlas -h`
 
-    <!-- Insall deps? Docker? -->
-    - Run `make`
 
-    <!-- Usage -->
-    - `sqlalchemy2atlasgo -h`
-
-# Driver Support
+## Driver Support
 - [x] PostgreSQL
     - [x] 14.x
-- [ ] Spanner
+- [ ] Cloud Spanner
 - [ ] MySQL
-- [ ] MariaDB
 - [ ] SQLLite

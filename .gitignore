@@ -5,3 +5,8 @@ __pycache__/
 
 # Logging
 logs/
+
+# Build
+dist/
+build/
+*.egg-*

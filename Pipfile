@@ -6,12 +6,15 @@ name = "pypi"
 [packages]
 docker = ">=6.0"
 psycopg2 = ">=2.9"
+sqlalchemy = ">=1.4"
 
 [dev-packages]
 black = "*"
+pytest = "*"
+pynguin = "*"
 
 [requires]
-python_version = "3.9"
+python_version = "3.10"
 
 [pipenv]
 allow_prereleases = true

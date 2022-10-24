@@ -15,7 +15,6 @@ def test_postgres(capsys):
     with open(hcl_filepath, "r") as hcl:
         expected_hcl = hcl.read()
 
-    # sqlalchemy2atlas.convert(source_filepath, hcl_filepath)
     sqlalchemy2atlas.main([source_filepath, "--flavor", "postgres"])
 
     output = capsys.readouterr().out

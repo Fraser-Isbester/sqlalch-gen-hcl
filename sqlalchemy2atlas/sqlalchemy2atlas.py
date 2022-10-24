@@ -1,19 +1,16 @@
-import time
-import secrets
 import logging
 import sys
 import importlib
 from pathlib import Path
 from argparse import ArgumentParser
+from os import popen
 
 from .containers import PostgreContainer
+from .exceptions import UnknownFlavorException
 
 # DB Connectivity
 from sqlalchemy import create_engine
 from sqlalchemy.pool import NullPool
-
-# For Atlas
-from os import popen
 
 # Logging Config
 Path("./logs").mkdir(parents=True, exist_ok=True)
@@ -44,24 +41,19 @@ def main(argv=None):
     )
 
     args = parser.parse_args(argv)
-
     path = args.filepath.replace("/", ".").replace(".py", "")
     base = importlib.import_module(path).Base
 
     try:
-
         if args.flavor == "postgres":
             db = PostgreContainer()
         else:
-            raise (f"Flavor {args.flavor} not supported.")
+            raise UnknownFlavorException(f"Flavor {args.flavor} not supported.")
 
         engine = create_engine(db.connection_string, poolclass=NullPool)
-
         base.metadata.create_all(engine)
-
         stream = popen(f'atlas schema inspect --url "{db.connection_string}"')
         output = stream.read()
-
         logging.info(output)
 
     finally:

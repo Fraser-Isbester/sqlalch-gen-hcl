@@ -4,13 +4,21 @@ on: [pull_request]
 
 jobs:
 
-  black-lint:
+  lint-black:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - uses: psf/black@stable
         with:
           options: "--check --verbose"
+
+  lint-bandit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: jpetrucciani/bandit-check@master
+        with:
+          path: './sqlalchemy2atlas'
 
   build:
     runs-on: ubuntu-latest

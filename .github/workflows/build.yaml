@@ -1,0 +1,137 @@
+name: Lint and Test
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+
+  lint-black:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: psf/black@stable
+        with:
+          options: "--check --verbose"
+
+  lint-bandit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: jpetrucciani/bandit-check@master
+        with:
+          path: './sqlalchemy2atlas'
+          bandit_flags: '--severity high'
+
+  test-and-lint:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # python-version: ["3.7", "3.8", "3.9", "3.10"]
+        python-version: ["3.10"]
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install flake8 pytest twine
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+      - name: Install AtlasGO
+        run: |
+          curl -LO https://release.ariga.io/atlas/atlas-linux-amd64-latest
+          sudo install -o root -g root -m 0755 ./atlas-linux-amd64-latest /usr/local/bin/atlas
+      # Lint with flake8
+      - name: Lint with flake8
+        run: |
+          # stop the build if there are Python syntax errors or undefined names
+          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+          # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+          flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+      # Run PyTest Suite
+      - name: Test with pytest
+        run: pytest
+
+  # build-and-publish:
+  #   needs: [lint-black, lint-bandit, test-and-lint]
+  #   runs-on: ubuntu-latest
+  #   steps:
+
+  #     - uses: actions/checkout@v3
+
+  #     - name: 'Show Versions (Optional)'
+  #       shell: bash
+  #       run: |
+  #         echo 'New Tag: ${{ steps.tag-version.outputs.new_tag }}'
+  #         echo 'New Version: ${{ steps.tag-version.outputs.new_version }}'
+  #         echo 'Old Tag: ${{ steps.tag-version.outputs.previous_tag }}'
+  #         echo 'Old Version: ${{ steps.tag-version.outputs.previous_version }}'
+  #         echo 'Release Type: ${{ steps.tag-version.outputs.release_type }}'
+  #         echo 'Changelog: ${{ steps.tag-version.outputs.changelog }}'
+
+  #     # Builds a tag like v0.0.0 (on main) or v0.0.0-dev5 (off main)
+  #     - name: Set Dev Version Tag
+  #       if: github.event_name == 'push'
+  #       run: echo "VERSION_TAG=${{ steps.tag-version.outputs.new_tag }}" >> $GITHUB_ENV
+
+  #     - name: Echo Chosen Version Tag
+  #       run: echo "${{ env.VERSION_TAG }}"
+
+  #     - name: Set up Python 3.10
+  #       uses: actions/setup-python@v4
+  #       with:
+  #         python-version: '3.10'
+
+  #     - name: Install Python dependencies
+  #       run: |
+  #         python -m pip install --upgrade pip
+  #         pip install wheel newversion
+  #         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+  #     - name: Build
+  #       run: |
+  #         python setup.py sdist bdist_wheel
+
+  #     If this Push into trunk ('main'), publish to PyPI
+  #     - name: Publish distribution to PyPI
+  #       if: ${{ github.event_name == 'push' }}
+  #       uses: pypa/gh-action-pypi-publish@release/v1
+  #       with:
+  #           password: ${{ secrets.PYPI_SQLALCHEMY_2_ATLAS_TOKEN }}
+
+
+  tag-and-release:
+    needs: [build-and-publish]
+    if: ${{ github.event_name == 'push' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Bump version and push tag
+        id: tag-version
+        uses: mathieudutour/github-tag-action@v6.0
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          release_branches: ^release$
+          pre_release_branches: ^release\/.*$
+
+      - name: 'Show outputs (Optional)'
+        shell: bash
+        run: |
+          echo 'New Tag: ${{ steps.tag-version.outputs.new_tag }}'
+          echo 'New Version: ${{ steps.tag-version.outputs.new_version }}'
+          echo 'Old Tag: ${{ steps.tag-version.outputs.previous_tag }}'
+          echo 'Old Version: ${{ steps.tag-version.outputs.previous_version }}'
+          echo 'Release Type: ${{ steps.tag-version.outputs.release_type }}'
+          echo 'Changelog: ${{ steps.tag-version.outputs.changelog }}'
+
+      - name: Create a GitHub release
+        uses: ncipollo/release-action@v1
+        with:
+          tag: ${{ steps.tag-version.outputs.new_tag }}
+          name: Release ${{ steps.tag-version.outputs.new_tag }}
+          body: ${{ steps.tag-version.outputs.changelog }}

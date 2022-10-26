@@ -16,3 +16,11 @@ requirements:
 tests:
 	mkdir -p ./tmp/pynguin-results
 	pynguin --project-path ./sqlalchemy2atlas --output-path ./tmp/pynguin-results --module-name sqlalchemy2atlas
+
+.PHONY:
+dist:
+	sh ./dist.sh
+
+.PHONY:
+version-slug-pre:
+	python setup.py --version | newversion bump pre

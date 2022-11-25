@@ -7,7 +7,7 @@ import docker
 
 
 class Flavors(enum.Enum):
-    POSTGRES = enum.auto()
+    POSTGRES = "postgres"
 
 
 class PostgreContainer:

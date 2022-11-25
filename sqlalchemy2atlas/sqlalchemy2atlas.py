@@ -1,15 +1,17 @@
-import logging
-import sys, os, subprocess
 import importlib
-from pathlib import Path
+import logging
+import os
+import subprocess
+import sys
 from argparse import ArgumentParser
-
-from .containers import PostgreContainer, Flavors
-from .exceptions import UnknownFlavorException
+from pathlib import Path
 
 # DB Connectivity
 from sqlalchemy import create_engine
 from sqlalchemy.pool import NullPool
+
+from .containers import Flavors, PostgreContainer
+from .exceptions import UnknownFlavorException
 
 # Logging Config
 Path("./logs").mkdir(parents=True, exist_ok=True)

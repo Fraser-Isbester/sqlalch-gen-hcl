@@ -47,7 +47,6 @@ def main(argv=None):
         default="Base",
         help="The name of the declarative base object in the schema file.",
     )
-
     args = parser.parse_args(argv)
     path = args.filepath.replace("/", ".").replace(".py", "")
 

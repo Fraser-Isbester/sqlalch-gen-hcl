@@ -31,8 +31,10 @@ jobs:
           poetry config repositories.pypi https://pypi.org/legacy/
           poetry config pypi-token.pypi ${{ secrets.PYPI_SQLALCHEMY_2_ATLAS_TOKEN }}
 
-      - name: Build project for distribution
-        run: poetry build
+      - name: Build Project for Distribution
+        run: |
+          poetry version $(git describe --tags --abbrev=0)
+          poetry build
 
       - name: Check Version
         id: check-version

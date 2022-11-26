@@ -36,8 +36,11 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Configure Poetry
+      - name: Install Poetry
         uses: abatilo/actions-poetry@v2
+
+      - name: Install Project with Poetry
+        run: poetry install
 
       - uses: actions/cache@v2
         with:
@@ -57,4 +60,4 @@ jobs:
           poetry run flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
 
       - name: Test with pytest
-        run: pytest
+        run: poetry run pytest

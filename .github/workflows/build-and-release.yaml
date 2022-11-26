@@ -10,16 +10,12 @@ jobs:
   release:
     name: Release
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        # python-version: ["3.7", "3.8", "3.9", "3.10"]
-        python-version: ["3.10"]
     steps:
       - uses: actions/checkout@v3
-      - name: Set up Python ${{ matrix.python-version }}
+      - name: Set up Python 3.10
         uses: actions/setup-python@v4
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: 3.10
 
       - name: Install Poetry
         uses: abatilo/actions-poetry@v2
@@ -53,7 +49,11 @@ jobs:
       - name: Publish to Test-PyPI
         run: poetry publish --repository=test-pypi
 
+      - name: Get Branch
+        id: get-branch
+        run: echo "branch=$(git rev-parse --abbrev-ref HEAD)" >> $GITHUB_OUTPUT
+
       # Deploy to PyPi on trunk release
       - name: Publish to PyPi
-        if: github.ref == 'refs/heads/main'
+        if: ${{ steps.get-branch.branch == 'main' }}
         run: poetry publish --repository=pypi

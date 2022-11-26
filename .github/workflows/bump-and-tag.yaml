@@ -30,10 +30,3 @@ jobs:
           echo 'Old Version: ${{ steps.tag-version.outputs.previous_version }}'
           echo 'Release Type: ${{ steps.tag-version.outputs.release_type }}'
           echo 'Changelog: ${{ steps.tag-version.outputs.changelog }}'
-
-      - name: Create a GitHub release
-        uses: ncipollo/release-action@v1
-        with:
-          tag: ${{ steps.tag-version.outputs.new_tag }}
-          name: Release ${{ steps.tag-version.outputs.new_tag }}
-          body: ${{ steps.tag-version.outputs.changelog }}

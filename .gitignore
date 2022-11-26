@@ -1,7 +1,7 @@
 # Local Development
 .vscode/
-Pipfile.lock
 __pycache__/
+secrets/
 
 # Logging
 logs/

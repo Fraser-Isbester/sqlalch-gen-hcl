@@ -1,13 +1,5 @@
-from datetime import datetime
+from sqlalchemy import CheckConstraint, Column, DateTime, ForeignKey, Integer, String
 from sqlalchemy.orm import declarative_base
-from sqlalchemy import (
-    Column,
-    Integer,
-    String,
-    DateTime,
-    CheckConstraint,
-    ForeignKey,
-)
 
 Base = declarative_base()
 

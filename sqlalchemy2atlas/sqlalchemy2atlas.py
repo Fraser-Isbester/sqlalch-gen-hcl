@@ -1,16 +1,17 @@
-import logging
-import sys, os
 import importlib
-from pathlib import Path
+import logging
+import os
+import subprocess
+import sys
 from argparse import ArgumentParser
-from os import popen
-
-from .containers import PostgreContainer, Flavors
-from .exceptions import UnknownFlavorException
+from pathlib import Path
 
 # DB Connectivity
 from sqlalchemy import create_engine
 from sqlalchemy.pool import NullPool
+
+from .containers import Flavors, PostgreContainer
+from .exceptions import UnknownFlavorException
 
 # Logging Config
 Path("./logs").mkdir(parents=True, exist_ok=True)
@@ -46,7 +47,6 @@ def main(argv=None):
         default="Base",
         help="The name of the declarative base object in the schema file.",
     )
-
     args = parser.parse_args(argv)
     path = args.filepath.replace("/", ".").replace(".py", "")
 
@@ -63,8 +63,12 @@ def main(argv=None):
         engine = create_engine(db.connection_string, poolclass=NullPool)
         base.metadata.create_all(engine)
 
-        stream = popen(f'atlas schema inspect --url "{db.connection_string}"')
-        output = stream.read()
+        output = subprocess.run(
+            ["atlas", "schema", "inspect", "--url", db.connection_string],
+            shell=False,
+            capture_output=True,
+            text=True,
+        )
         logging.info(output)
 
     finally:
@@ -73,10 +77,12 @@ def main(argv=None):
             db.container.kill()
             db.container.remove()
         except UnboundLocalError as err:
-            logging.warning("db container failed to initialize, nothing to kill.")
+            logging.warning(
+                "db container failed to initialize, nothing to kill: %s", err
+            )
         logging.debug("Done cleaning up.")
 
-    print(output, file=sys.stdout)
+    print(output.stdout, file=sys.stdout)
 
 
 if __name__ == "__main__":

@@ -1,12 +1,12 @@
-from enum import Enum
+import enum
 import logging
-import datetime
-import time
 import secrets
+import time
+
 import docker
 
 
-class Flavors(Enum):
+class Flavors(enum.Enum):
     POSTGRES = "postgres"
 
 
@@ -14,11 +14,16 @@ class PostgreContainer:
     """Postgres flavored container"""
 
     def __init__(
-        self, image="postgres:latest", port=5432, password=None, wait_for_ready=True
+        self,
+        image="postgres",
+        tag="latest",
+        port=5432,
+        password=None,
+        wait_for_ready=True,
     ):
         self.container = None
 
-        self.db_image = image
+        self.db_image = image + ":" + tag
         self.db_port = port
         self.db_password = password or self._gen_password()
 

@@ -1,10 +1,10 @@
 name: Lint and Test
 
-on: [pull_request]
+on:
+  pull_request:
 
 jobs:
-
-  black-lint:
+  lint-black:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -12,35 +12,52 @@ jobs:
         with:
           options: "--check --verbose"
 
-  build:
+  lint-bandit:
     runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: jpetrucciani/bandit-check@master
+        with:
+          path: "./sqlalchemy2atlas"
+          bandit_flags: "--severity high"
+
+  test-and-lint:
     strategy:
       matrix:
-        python-version: ["3.7", "3.8", "3.9", "3.10"]
+        # python-version: ["3.9", "3.10", "3.11"]
+        python-version: ["3.10"]
+        # os: [ubuntu-18.04, macos-latest]
+        os: [ubuntu-latest]
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Install Python dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install flake8 pytest
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-      - name: Install AtlasGO
+
+      - name: Install Poetry
+        uses: abatilo/actions-poetry@v2
+
+      - name: Install Project with Poetry
+        run: poetry install
+
+      - uses: actions/cache@v2
+        with:
+          path: ~/.cache/pypoetry/virtualenvs
+          key: ${{ runner.os }}-poetry-${{ hashFiles('poetry.lock') }}
+
+      - name: Install AtlasGo
         run: |
           curl -LO https://release.ariga.io/atlas/atlas-linux-amd64-latest
           sudo install -o root -g root -m 0755 ./atlas-linux-amd64-latest /usr/local/bin/atlas
 
-      # Lint with flake8
       - name: Lint with flake8
         run: |
           # stop the build if there are Python syntax errors or undefined names
-          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+          poetry run flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
           # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-          flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+          poetry run flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
 
-      # Run PyTest Suite
       - name: Test with pytest
-        run: pytest
+        run: poetry run pytest

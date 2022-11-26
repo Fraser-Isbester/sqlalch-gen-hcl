@@ -19,7 +19,7 @@ def test_postgres(capsys):
 
     output = capsys.readouterr().out
 
-    expected_hcl_normal = re.sub(f"\\s+", " ", expected_hcl).strip()
-    output_normal = re.sub(f"\\s+", " ", output).strip()
+    expected_hcl_normal = re.sub("\\s+", " ", expected_hcl).strip()
+    output_normal = re.sub("\\s+", " ", output).strip()
 
     assert output_normal == expected_hcl_normal

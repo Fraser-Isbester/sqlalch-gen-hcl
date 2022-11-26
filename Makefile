@@ -5,7 +5,8 @@ init:
 
 .PHONEY:
 lint:
-	black .
+	flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+	flake8 . --count --max-complexity=10 --max-line-length=127 --statistics
 
 .PHONEY:
 requirements:
@@ -16,3 +17,11 @@ requirements:
 tests:
 	mkdir -p ./tmp/pynguin-results
 	pynguin --project-path ./sqlalchemy2atlas --output-path ./tmp/pynguin-results --module-name sqlalchemy2atlas
+
+.PHONY:
+dist:
+	sh ./dist.sh
+
+.PHONY:
+version-slug-pre:
+	python setup.py --version | newversion bump pre

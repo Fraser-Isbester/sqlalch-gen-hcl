@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "sqlalchemy2atlas"
-version = "0.1.0"
+version = "0.0.0"
 description = "Converts SQLALchemy Base Classes to AtlasGo HCL."
 authors = ["Fraser Isbester <28307321+Fraser-Isbester@users.noreply.github.com>"]
 license = "MIT"

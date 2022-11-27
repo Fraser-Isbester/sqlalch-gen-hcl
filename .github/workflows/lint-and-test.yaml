@@ -1,6 +1,12 @@
 name: Lint and Test
 
-on: [pull_request]
+on:
+  pull_request:
+    paths:
+      - "sqlalchemy2atlas/**"
+      - "tests/**"
+      - ".github/workflows/lint-and-test.yaml"
+      - "pyproject.toml"
 
 jobs:
   lint-black:

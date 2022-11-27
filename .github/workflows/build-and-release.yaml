@@ -54,7 +54,7 @@ jobs:
 
       - name: Build Project for Distribution
         run: |
-          poetry version $(git describe --tags --abbrev=0)
+          poetry version ${{ steps.tag-version.outputs.new_version }}
           poetry build
 
       # Deploy to test PyPi

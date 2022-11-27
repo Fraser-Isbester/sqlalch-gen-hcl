@@ -24,7 +24,6 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           release_branches: ^main$
-          pre_release_branches: ^release\/.*$ # e.g. release/my-release-candidate
 
       - name: "Show outputs (Optional)"
         shell: bash
@@ -58,15 +57,10 @@ jobs:
           poetry version $(git describe --tags --abbrev=0)
           poetry build
 
-      # Deploy to test PyPi on non-trunk release
+      # Deploy to test PyPi
       - name: Publish to Test-PyPI
         run: poetry publish --repository=test-pypi
 
-      - name: Get Branch
-        id: get-branch
-        run: echo "branch=$(git rev-parse --abbrev-ref HEAD)" >> $GITHUB_OUTPUT
-
-      # Deploy to PyPi on trunk release
+      # Deploy to PyPi
       - name: Publish to PyPi
-        if: ${{ steps.get-branch.branch == 'main' }}
         run: poetry publish --repository=pypi

@@ -1,6 +1,12 @@
 name: Lint and Test
 
-on: [pull_request]
+on:
+  pull_request:
+    paths:
+      - "sqlalchemy2atlas/**"
+      - "tests/**"
+      - ".github/workflows/lint-and-test.yaml"
+      - "pyproject.toml"
 
 jobs:
   lint-black:
@@ -24,7 +30,7 @@ jobs:
     strategy:
       matrix:
         python-version: ["3.10", "3.11"]
-        os: [ubuntu-18.04, macos-latest]
+        os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3
@@ -44,10 +50,19 @@ jobs:
           path: ~/.cache/pypoetry/virtualenvs
           key: ${{ runner.os }}-poetry-${{ hashFiles('poetry.lock') }}
 
-      - name: Install AtlasGo
+      - name: Install AtlasGo on Linux Runner
+        if: startsWith(matrix.os, 'ubuntu-')
         run: |
           curl -LO https://release.ariga.io/atlas/atlas-linux-amd64-latest
           sudo install -o root -g root -m 0755 ./atlas-linux-amd64-latest /usr/local/bin/atlas
+
+      - name: Install AtlasGo on MacOs Runner
+        if: startsWith(matrix.os, 'macos-')
+        run: |
+          curl -LO https://release.ariga.io/atlas/atlas-darwin-amd64-latest
+          chmod +x ./atlas-darwin-amd64-latest
+          sudo mv ./atlas-darwin-amd64-latest /usr/local/bin/atlas
+          sudo chown root: /usr/local/bin/atlas
 
       - name: Lint with flake8
         run: |

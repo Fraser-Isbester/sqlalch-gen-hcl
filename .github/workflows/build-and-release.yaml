@@ -1,4 +1,4 @@
-name: Bump version
+name: Build & Release
 on:
   pull_request:
     types: [closed]
@@ -49,7 +49,7 @@ jobs:
         run: |
           poetry config repositories.test-pypi https://test.pypi.org/legacy/
           poetry config pypi-token.test-pypi ${{ secrets.TEST_PYPI_SQLALCHEMY_2_ATLAS_TOKEN }}
-          poetry config repositories.pypi https://pypi.org/legacy/
+          poetry config repositories.pypi https://upload.pypi.org/legacy/
           poetry config pypi-token.pypi ${{ secrets.PYPI_SQLALCHEMY_2_ATLAS_TOKEN }}
 
       - name: Build Project for Distribution

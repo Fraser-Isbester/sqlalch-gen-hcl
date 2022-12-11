@@ -21,8 +21,6 @@ class PostgreContainer:
         password=None,
         wait_for_ready=True,
     ):
-        self.container = None
-
         self.db_image = image + ":" + tag
         self.db_port = port
         self.db_password = password or self._gen_password()
@@ -42,7 +40,7 @@ class PostgreContainer:
         for log in self.container.logs(stream=True):
             if ready_string in log.decode("ascii"):
                 logging.debug("DB is ready with note: '%s'", ready_string)
-                time.sleep(0.25)  # TODO: Invesitgate ready failure without this
+                time.sleep(0.25)  # TODO: Investigate ready failure without this
                 return
 
     def _gen_password(self):
